@@ -32,7 +32,7 @@ import com.nemo.coharts.chart.protocol.StringPlottable
 @Composable
 fun <X : Plottable> Chart(
     modifier: Modifier = Modifier,
-    samples: List<Sample<X, DoublePlottable>>,
+    samples: List<Sample<X>>,
     mark: Mark,
 ) {
 
