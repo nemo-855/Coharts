@@ -1,12 +1,12 @@
 package com.nemo.coharts.chart.chart
 
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import com.nemo.coharts.chart.protocol.DoublePlottable
-import com.nemo.coharts.chart.protocol.Plottable
+import com.nemo.coharts.chart.domain.sample.Sample
+import com.nemo.coharts.chart.domain.plottable.Plottable
 
 sealed interface Mark {
     fun <X : Plottable> drawContent(
         drawScope: DrawScope,
-        samples: List<Pair<X, DoublePlottable>>,
+        samples: List<Sample<X>>,
     )
 }
