@@ -19,10 +19,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nemo.coharts.chart.protocol.DoublePlottable
-import com.nemo.coharts.chart.protocol.Plottable
-import com.nemo.coharts.chart.protocol.Sample
-import com.nemo.coharts.chart.protocol.StringPlottable
+import com.nemo.coharts.chart.domain.plottable.impl.DoublePlottable
+import com.nemo.coharts.chart.domain.plottable.Plottable
+import com.nemo.coharts.chart.domain.sample.Sample
+import com.nemo.coharts.chart.domain.sample.Sample.Companion.sumByLabel
+import com.nemo.coharts.chart.domain.plottable.impl.StringPlottable
 
 /**
  * TODO kdoc記入
@@ -32,40 +33,29 @@ import com.nemo.coharts.chart.protocol.StringPlottable
 @Composable
 fun <X : Plottable> Chart(
     modifier: Modifier = Modifier,
-    samples: List<Sample<X, DoublePlottable>>,
+    samples: List<Sample<X>>,
     mark: Mark,
 ) {
-
     Column(modifier = modifier.fillMaxSize()) {
+        val summedSamples = samples.sumByLabel()
+
         Canvas(
             modifier = Modifier
                 .weight(9f)
                 .fillMaxSize()
         ) {
-            drawVerticalLine(xDepartmentNumber = samples.size)
+
+            drawVerticalLine(xDepartmentNumber = summedSamples.size)
             drawHorizontalLine()
             mark.drawContent(
                 drawScope = this,
-                // FIXME Sampleクラス側にcompanion objectで、
-                //  List<Sample>.buildMapみたいな感じで実装すればスッキリしそう
-                samples = buildMap<X, DoublePlottable> {
-                    samples.forEach { sample ->
-                        val yPlottable = this[sample.xPlottable]
-                        if (yPlottable == null) {
-                            this[sample.xPlottable] = sample.yPlottable
-                        } else {
-                            this[sample.xPlottable] = yPlottable.copy(
-                                value = yPlottable.value + sample.yPlottable.value
-                            )
-                        }
-                    }
-                }.toList(),
+                samples = summedSamples,
             )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            samples.forEach { (xPlottable, _) ->
+            summedSamples.forEach { (xPlottable, _) ->
                 // FIXME 表示幅に応じてサイズを変えたい。
                 //  それか応急処置であれば外部でTextサイズ変更できるようにするとか？？
                 Text(

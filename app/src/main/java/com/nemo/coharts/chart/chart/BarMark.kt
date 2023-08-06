@@ -4,24 +4,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
-import com.nemo.coharts.chart.protocol.DoublePlottable
-import com.nemo.coharts.chart.protocol.Plottable
+import com.nemo.coharts.chart.domain.plottable.Plottable
+import com.nemo.coharts.chart.domain.sample.Sample
 
 private const val marginPaddingRatio = 0.4f
 
 object BarMark : Mark {
     override fun <X : Plottable> drawContent(
         drawScope: DrawScope,
-        samples: List<Pair<X, DoublePlottable>>
+        samples: List<Sample<X>>
     ) {
-        samples.forEachIndexed { index, (_, yPlottable) ->
-            // FIXME DoublePlottableにComparableを継承すれば綺麗に書けそう、
-            //  maxYはmaxYPlottableを包含する、一番キリの良さそうな数値を入れる想定
-            val maxYPlottable = samples
-                .maxOfOrNull { it.second.value }
-                ?.let { yPlottable.copy(value = it) }
-                ?: return@forEachIndexed
+        val maxYPlottable = samples.maxOfOrNull { it.yPlottable } ?: return
 
+        samples.forEachIndexed { index, (_, yPlottable) ->
             val sectionWidth = drawScope.size.width / samples.size
 
             val barWidth = sectionWidth * (1 - marginPaddingRatio)
